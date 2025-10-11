@@ -1,5 +1,9 @@
-import func1
-func1()
+'''
+Лаба 6
+Иванов Андрей Александрович
+ИУ7-16Б
+'''
+
 while True:
     command = input('''Выберите нужную команду из списка:
     1) Вставка элемента функцией пайтон
@@ -15,112 +19,28 @@ while True:
     match command:
         
         case '1':
-            listWithNumbers = list(map(int, input('Введите элементы массива через пробел: ').split()))
-            index = int(input('Введите место подстановки: '))
-            element = int(input('Введите новый элемент: '))
-            listWithNumbers.insert(index, element)
-            print(listWithNumbers)
+            exec(open('6lab\\func1.py', encoding='utf-8').read())
             
         case '2':
-            listWithNumbers = list(map(int, input('Введите элементы массива через пробел: ').split()))
-            index = int(input('Введите место подстановки: '))
-            element = int(input('Введите новый элемент: '))
-            listWithNumbers.append(0)
-            for i in range(len(listWithNumbers)):
-                if i == index:
-                    lastest = listWithNumbers[i]
-                    listWithNumbers[i] = element
-                elif i > index:
-                    listWithNumbers[i], lastest = lastest, listWithNumbers[i]
-            print(listWithNumbers)
+            exec(open('6lab\\func2.py', encoding='utf-8').read())
             
         case '3':
-            listWithNumbers = list(map(int, input('Введите элементы массива через пробел: ').split()))
-            index = int(input('Введите индекс удаления: '))
-            index = 4
-            listWithNumbers.pop(index)
-            print(listWithNumbers)
+            exec(open('6lab\\func3.py', encoding='utf-8').read())
             
         case '4':
-            listWithNumbers = list(map(int, input('Введите элементы массива через пробел: ').split()))
-            index = int(input('Введите индекс удаления: '))
-            
-            for i in range(index, len(listWithNumbers) - 1):
-                listWithNumbers[i] = listWithNumbers[i + 1]
-
-            listWithNumbers = listWithNumbers[:-1]
-            
-            print(listWithNumbers)
+            exec(open('6lab\\func4.py', encoding='utf-8').read())
             
         case '5':
-            listWithNumbers = list(map(int, input('Введите элементы массива через пробел: ').split()))
-            k = int(input('Введите К: '))
-            numberOfFound = 0
-
-            for i in range(1, len(listWithNumbers) - 1):
-                leftNumber, number, rightNumber = listWithNumbers[i - 1 : i + 2]
-                if (leftNumber < number and rightNumber < number) or \
-                    (leftNumber > number and rightNumber > number):
-                        numberOfFound += 1
-                        
-                        if numberOfFound == k:
-                            print(number)
-                            break
-            else:
-                print('Количество экстремумов меньше чем к')
+            exec(open('6lab\\func5.py', encoding='utf-8').read())
             
         case '6':
-            listWithNumbers = list(map(int, input('Введите элементы массива через пробел: ').split()))
-        
-            currentSequence = 0
-            maxSequence = 0
-
-            for index, value in enumerate(listWithNumbers):
-                
-                if value > 1:
-                    numberIsPrime = True
-                    for i in range(2, int(value**0.5)+1):
-                        if value % i == 0:
-                            numberIsPrime = False
-                            break
-                else:
-                    numberIsPrime = False
-                
-                if numberIsPrime and currentSequence == 0:
-                    currentSequence = 1
-                elif numberIsPrime and value < listWithNumbers[index - 1]:
-                    currentSequence += 1
-                else:
-                    maxSequence = max(currentSequence, maxSequence)
-                    currentSequence = 0
-                
-            maxSequence = max(currentSequence, maxSequence)
-            print(maxSequence)
+            exec(open('6lab\\func6.py', encoding='utf-8').read())
             
         case '7':
-            listWithNumbers = list(map(int, input('Введите элементы массива через пробел: ').split()))
+            exec(open('6lab\\func7.py', encoding='utf-8').read())
             
-            lastZeroPosition = -1
-
-            maxNegativeValue = float('-inf')
-            maxNegativePosition = -1
-
-            for index, value in enumerate(listWithNumbers):
-                if value == 0:
-                    lastZeroPosition = index
-                
-                if maxNegativeValue < value < 0:
-                    maxNegativeValue = value
-                    maxNegativePosition = index
-
-            if maxNegativePosition != -1 and lastZeroPosition != -1:
-                listWithNumbers[maxNegativePosition], listWithNumbers[lastZeroPosition] =\
-                listWithNumbers[lastZeroPosition], listWithNumbers[maxNegativePosition]
-                print(listWithNumbers)
-            else:
-                print('Значений в списке не хватает')
-                
         case '0':
-            break        
+            break
+         
         case _:
             print('Неверный ввод команды')
