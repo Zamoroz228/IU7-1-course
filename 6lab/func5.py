@@ -1,18 +1,27 @@
+'''
+Замена максимального отрицательного и последнего нуля
+'''
 listWithNumbers = list(map(int, input('Введите элементы массива через пробел: ').split()))
-k = int(input('Введите К: '))
-numberOfFound = 0
 
-for i in range(1, len(listWithNumbers) - 1):
+lastZeroPosition = None
+
+maxNegativeValue = float('-inf')
+maxNegativePosition = None
+
+for index, value in enumerate(listWithNumbers):
     
-    leftNumber, number, rightNumber = listWithNumbers[i - 1 : i + 2]
+    if value == 0:
+        lastZeroPosition = index
     
-    if (leftNumber < number and rightNumber < number) or \
-        (leftNumber > number and rightNumber > number):
-            
-            numberOfFound += 1
-            
-            if numberOfFound == k:
-                print('Найденное число:', number)
-                break
+    if maxNegativeValue < value < 0:
+        maxNegativeValue = value
+        maxNegativePosition = index
+
+if not maxNegativePosition is None and not lastZeroPosition is None:
+    listWithNumbers[maxNegativePosition], listWithNumbers[lastZeroPosition] =\
+    listWithNumbers[lastZeroPosition], listWithNumbers[maxNegativePosition]
+    print('Массив после изменений:', listWithNumbers)
+    
 else:
-    print('Количество экстремумов меньше чем к')
+    print('Значений в списке не хватает')
+    
