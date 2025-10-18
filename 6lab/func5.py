@@ -3,8 +3,6 @@
 '''
 listWithNumbers = list(map(int, input('Введите элементы массива через пробел: ').split()))
 
-lastZeroPosition = None
-
 maxNegativeValue = float('-inf')
 maxNegativePosition = None
 
@@ -24,4 +22,3 @@ if not maxNegativePosition is None and not lastZeroPosition is None:
     
 else:
     print('Значений в списке не хватает')
-    

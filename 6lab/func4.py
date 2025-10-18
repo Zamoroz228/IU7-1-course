@@ -12,19 +12,19 @@ maxSequence = []
 for index, value in enumerate(listWithNumbers):
     
     if value > 1:
-        numberIsPrime = True
+        is_NumberPrime = True
         for i in range(2, int(value**0.5)+1):
             if value % i == 0:
-                numberIsPrime = False
+                is_NumberPrime = False
                 break
     else:
-        numberIsPrime = False
+        is_NumberPrime = False
     
-    if numberIsPrime and currentSequenceLen == 0:
+    if is_NumberPrime and currentSequenceLen == 0:
         currentSequenceLen = 1
         currentSequence = [value]
         
-    elif numberIsPrime and value < listWithNumbers[index - 1]:
+    elif is_NumberPrime and value < listWithNumbers[index - 1]:
         currentSequenceLen += 1
         currentSequence.append(value)
         
@@ -33,8 +33,12 @@ for index, value in enumerate(listWithNumbers):
             maxSequenceLen = currentSequenceLen
             maxSequence = currentSequence
 
-        currentSequenceLen = 0
-    
+        if is_NumberPrime:
+            currentSequenceLen = 1
+            currentSequence = [value]
+        else:
+            currentSequenceLen = 0
+        
 if currentSequenceLen > maxSequenceLen:
             maxSequenceLen = currentSequenceLen
             maxSequence = currentSequence

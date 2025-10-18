@@ -3,10 +3,13 @@
 '''
 listWithNumbers = list(map(int, input('Введите элементы массива через пробел: ').split()))
 index = int(input('Введите индекс удаления: '))
+if index >= len(listWithNumbers) or index < 0:
+    print('Неверный индекс')
 
-for i in range(index + 1, len(listWithNumbers)):
-    listWithNumbers[i - 1] = listWithNumbers[i]
+else:
+    for i in range(index + 1, len(listWithNumbers)):
+        listWithNumbers[i - 1] = listWithNumbers[i]
 
-listWithNumbers = listWithNumbers[:-1]
+    listWithNumbers = listWithNumbers[:-1]
 
-print('Массив после изменений:', listWithNumbers)
+    print('Массив после изменений:', listWithNumbers)
