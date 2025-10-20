@@ -11,16 +11,16 @@ while True:
     match command:
         
         case '1':
-            exec(open('6lab\\func1a.py', encoding='utf-8').read())
+            exec(open('./7lab/1.py', encoding='utf-8').read())
             
         case '2':
-            exec(open('6lab\\func1b.py', encoding='utf-8').read())
+            exec(open('./7lab/2.py', encoding='utf-8').read())
                 
         case '3':
-            exec(open('6lab\\func3.py', encoding='utf-8').read())
+            exec(open('./7lab/3.py', encoding='utf-8').read())
             
         case '4':
-            exec(open('6lab\\func4.py', encoding='utf-8').read())
+            exec(open('./7lab/4.py', encoding='utf-8').read())
             
         case '0':
             break

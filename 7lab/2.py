@@ -16,13 +16,11 @@ list_with_numbers += [None] * amount_even_numbers
 write_index = len(list_with_numbers) - 1
 
 for read_index in range(len(list_with_numbers) - amount_even_numbers - 1, -1, -1):
-    
-    if list_with_numbers[read_index] % 2 == 0:
-        list_with_numbers[write_index] = list_with_numbers[read_index] * 2
+    if list_with_numbers[read_index] % 2 == 0: # type: ignore
+        list_with_numbers[write_index] = 2 * list_with_numbers[read_index] # type: ignore
         write_index -= 1
         
     list_with_numbers[write_index] = list_with_numbers[read_index]
     write_index -= 1
-    read_index -= 1
     
 print(list_with_numbers)
