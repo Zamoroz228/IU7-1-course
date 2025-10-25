@@ -4,13 +4,12 @@
 '''
 from func8 import input_matrix
 
-matrix, size_of_matrix = input_matrix()
-
+matrix, row_number, column_number = input_matrix()
 
 max_amount_negative_numbers = 0
 row_index_max_negative = None
 
-min_amount_negative_numbers = size_of_matrix
+min_amount_negative_numbers = column_number
 row_index_min_negative = None
 
 for index, row in enumerate(matrix):
@@ -28,10 +27,14 @@ for index, row in enumerate(matrix):
         row_index_min_negative = index
         
 if row_index_max_negative is None or row_index_min_negative is None:
-    print('В матрице недостаточно данных')
+    print('В матрице недостаточно данных\n')
 else:
     matrix[row_index_min_negative], matrix[row_index_max_negative] =\
     matrix[row_index_max_negative], matrix[row_index_min_negative] 
     
-    print('Матрица после изменений:')
-    [print(i) for i in matrix]
+    s = 'Матрица после изменений:\n' + '-'*(9 * column_number + 1) + '\n'
+    for i in matrix:
+        for j in i:
+            s += f'|{j:^8.5g}'
+        s += '|\n' + '-'*(9 * column_number + 1) + '\n'
+    print(s)
