@@ -1,7 +1,7 @@
 '''
-Найти столбец, имеющий наибольшее количество чисел, являющихся степенями 2.
+Найти максимальное значение в квадратной матрице над главной диагональю и
+минимальное - под побочной диагональю.
 '''
-from math import log2
 
 digits = '0123456789'
 
@@ -44,23 +44,19 @@ for i in range(size_of_matrix):
     
     matrix.append(current_row)
 
-max_2degree_numbers = 0
-column_index_with_max_degree2_numbers = None  
-
-for index_column in range(size_of_matrix):
-    amount_2degree_numbers = 0 
-    for index_element in range(size_of_matrix):
-        number = matrix[index_element][index_column]
-        if number > 0 and log2(number) % 1 == 0:
-            amount_2degree_numbers += 1
+max_above_main_diagonal = float('-inf')
+min_below_secondary_diagonal = float('inf')
+    
+for i in range(size_of_matrix):
+    for j in range(size_of_matrix):
+        if i < j:
+            max_above_main_diagonal = max(max_above_main_diagonal, matrix[i][j])
             
-    if amount_2degree_numbers > max_2degree_numbers:
-        max_2degree_numbers = amount_2degree_numbers
-        column_index_with_max_degree2_numbers = index_column
-
-if column_index_with_max_degree2_numbers is None:
-    print('В матрице нет такого столбца')
+        if i + j > size_of_matrix - 1:
+            min_below_secondary_diagonal = min(min_below_secondary_diagonal, matrix[i][j])
+            
+if max_above_main_diagonal != float('-inf') and min_below_secondary_diagonal != float('inf'):
+    print(f'Максимальный элемент над главной диагональю: {max_above_main_diagonal}\n'
+          f'Минимальный элемент под побочной диагональю: {min_below_secondary_diagonal}')
 else:
-    print(f'Максимальное количество степеней двойки в одном столбце: {max_2degree_numbers}\n'
-          f'Номер данного столбца: {column_index_with_max_degree2_numbers + 1}\n'
-          f'Столбец: {[matrix[i][column_index_with_max_degree2_numbers] for i in range(size_of_matrix)]}')
+    print('Недостоточно данных')
