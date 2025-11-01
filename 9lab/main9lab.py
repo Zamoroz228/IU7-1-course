@@ -31,7 +31,7 @@ while True:
             run([executable, './9lab/6.py'])
 
         case '7':
-            run([executable, './9lab/6.py'])
+            run([executable, './9lab/7.py'])
             
         case '0':
             break
