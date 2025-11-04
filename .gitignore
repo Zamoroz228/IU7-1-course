@@ -1,0 +1,84 @@
+# VS Code настройки
+.vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+!.vscode/*.code-snippets
+
+# Локальная история VS Code
+.history/
+
+# Временные файлы Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Файлы подкачки
+*.swp
+*.swo
+*~
+
+# Локальные файлы приложений
+*.log
+*.tmp
+*.temp
+
+# Файлы окружения
+.env
+.env.local
+.env*.local
+
+# Node.js зависимости
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+test.py
+
+# C# .NET
+bin/
+obj/
+*.user
+*.suo
+*.userosscache
+
+# Java
+*.class
+*.jar
+*.war
+*.ear
+
+# Системные файлы Windows
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Папки сборки
+dist/
+build/
+.out/
+.nyc_output/
+
+# Кэш пакетных менеджеров
+.npm
+.yarn/
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+.pnp.*
