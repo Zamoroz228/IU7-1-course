@@ -10,6 +10,9 @@ from func9 import input_matrix
 
 d_matrix, row_number, column_number = input_matrix('Матрица D:')
 i_massive = list(map(int, input('Введите массив I: ').split()))
+if len(i_massive) == 0:
+    print('Ошибка: массив I пустой!')
+    exit()
 r_massive = []
 
 average_value = 0

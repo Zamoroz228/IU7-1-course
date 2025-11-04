@@ -21,8 +21,12 @@ if a_column_number != b_column_number:
     exit()
     
 for column_index in range(a_column_number):
-    average_value = sum([b_matrix[row_index][column_index] for row_index in range(b_row_number)]) / b_row_number
-
+    
+    average_value = 0
+    for row_index in range(b_row_number):
+        average_value += b_matrix[row_index][column_index]
+    average_value /= b_row_number
+    
     amount_large_a_element = 0
     for row_index in range(a_row_number):
         amount_large_a_element += 1 if a_matrix[row_index][column_index] > average_value else 0

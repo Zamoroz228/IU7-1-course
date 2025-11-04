@@ -4,7 +4,6 @@
 строчные. Вывести матрицу до преобразования и после.
 """
 
-from re import L
 from func9 import input_matrix
 
 matrix, row_number, column_number = input_matrix('Изначальная матрица:', input_type=str) # type: ignore

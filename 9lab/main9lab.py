@@ -7,8 +7,9 @@
 from subprocess import run
 from sys import executable
 
+text = open('./9lab/begin_text.txt', encoding='utf-8').read()
 while True:
-    command = input(open('./9lab/begin_text.txt', encoding='utf-8').read())
+    command = input(text)
 
     match command:
         

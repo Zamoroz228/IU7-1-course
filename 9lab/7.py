@@ -58,9 +58,19 @@ for matrix_index in range(z_number):
     massive_3D.append(current_matrix)
     
 max_dimension = max(x_number, y_number, z_number)
-slice_index = max_dimension // 2
+slice_index = (max_dimension - 1) // 2
 
-max_dimension = max(x_number, y_number, z_number)
+t = 0
+for current_matrix in massive_3D:
+    s = f'Срез по матрице с индексом {t}:\n' + '-'*(9 * y_number + 1) + '\n'
+    for i in current_matrix:
+        for j in i:
+            s += f'|{j:^8.5g}'
+        s += '|\n' + '-'*(9 * y_number + 1) + '\n'
+    t += 1
+    print(s)
+    
+print('\n','-'*100)
 
 if max_dimension == z_number:
     s = f'Срез по матрице с индексом {slice_index}:\n' + '-'*(9 * y_number + 1) + '\n'
@@ -79,8 +89,9 @@ elif max_dimension == x_number:
     print(s)
     
 else:
-    s = f'Срез по столбцу с индексом {slice_index}:\n' + '-'*10 + '\n'
+    s = f'Срез по столбцу с индексом {slice_index}:\n' + '-'*(9 * x_number + 1) + '\n'
     for matrix_index in range(z_number):
         for row in massive_3D[matrix_index]:
-            s += f'|{row[slice_index]:^8.5g}|\n' + '-'*10 + '\n'
+            s += f'|{row[slice_index]:^8.5g}'
+        s += '|\n' + '-'*(9 * x_number + 1) + '\n'
     print(s)

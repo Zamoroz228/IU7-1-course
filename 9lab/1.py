@@ -9,7 +9,7 @@ S.
 a = list(map(int, input('Введите массив A: ').split()))
 b = list(map(int, input('Введите массив B: ').split()))
 
-matrix = [[0]*len(b) for _ in range(len(a))]
+matrix = [[0] * len(b) for _ in range(len(a))]
 s = []
 
 for i in range(len(a)):
