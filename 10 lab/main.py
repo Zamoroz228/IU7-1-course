@@ -1,3 +1,9 @@
+'''
+Иванов Андрей 
+ИУ7-16Б
+Лаба 10
+'''
+ 
 import time
 from random import randint
 from string import digits
@@ -51,20 +57,28 @@ def sorting_algorithm_test(sizes: list[int], alghoritm = shell_sort) -> list[lis
         
     return time_of_each_size
 
+
 def string_to_int(s: str) -> int:
     is_negative = False
+    is_exponent = 0
     current_number = ''
-    for char in s:
+    for index, char in enumerate(s):
         if char in digits:
             current_number += char
         elif not current_number and char == '-':
             is_negative = not is_negative
+        elif char == 'e' or char == 'E':
+            is_exponent = string_to_int(s[index + 1:])
+            break
         else:
             exit('Ошибка: Введено неправильное число!')
+    if is_exponent:
+        return int('-'*is_negative + current_number) * 10 ** is_exponent
     number = int('-'*is_negative + current_number)
     return number
 
-def table_sort_visualize(test_data, sizes):
+
+def table_sort_visualize(test_data: list[list[list[int]]], sizes: list[int]) -> None:
     rand_test, sort_test, reverse_test = zip(*test_data)
     n = 88
     table = '-' * n + '\n'
@@ -91,7 +105,8 @@ def table_sort_visualize(test_data, sizes):
     table += f'\n{'-' * n}\n'
     print(table)
 
-def graph_visualize(begin: int, end: int):
+
+def graph_visualize(begin: int, end: int) -> None:
     number_of_sizes = 10
     number_of_serifs = 5
     size = 100
@@ -113,7 +128,7 @@ def graph_visualize(begin: int, end: int):
     
     print('+ - рандомный списо\n'
           '~ - сортированный список\n'
-          '* - обратно отсортированный список\n')
+          '* - обратно отсортированный список')
 
     s = ' ' * 6
     for i in range(number_of_serifs):
@@ -166,4 +181,3 @@ if __name__ == "__main__":
         exit('Ошибка: Значения должны быть положительными!')
     
     graph_visualize(begin, end)
-    
