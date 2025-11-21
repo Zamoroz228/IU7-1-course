@@ -6,93 +6,54 @@
 from typing import Callable
 from sys import exit
 from main import simpson_3_8, float_input, EPS
-from math import sin, cos
+
 
 def f(x: float) -> float:
-    return sin(x*2)
+    return x ** 2
 
 
 def g(x: float) -> float:
-    return cos(x*2)
+    return -x ** 2 + 4
 
 
-def bisection_method(func: Callable, a: float, b: float, epsilon: float = 1e-6) -> float:
-    if func(a) * func(b) > 0:
-        raise ValueError("На концах отрезка функция должна иметь разные знаки")
-    
-    iterations = 0
-    max_iterations = 1000
-    
-    while (b - a) / 2 > epsilon and iterations < max_iterations:
-        c = (a + b) / 2
-        if abs(func(c)) < epsilon:
-            return c
-        if func(a) * func(c) < 0:
-            b = c
-        else:
-            a = c
-        iterations += 1
-    
-    return (a + b) / 2
-
-
-def find_intersection_segments(f: Callable, g: Callable, 
-                               start: float = -20, end: float = 20, 
-                               step: float = 2) -> list:
+def find_intersections(f: Callable, g: Callable, 
+                       start: float = -20, end: float = 20, 
+                       step: float = 2, epsilon: float = 1e-6) -> list:
     """
-    Поиск отрезков, на которых функции пересекаются
+    Поиск точек пересечения двух функций методом бисекции
     
     Параметры:
-    f, g - функции
+    f, g - функции для поиска пересечений
     start, end - границы области поиска
-    step - шаг исследования
-    
-    Возвращает: список отрезков [(a1, b1), (a2, b2), ...]
-    """
-    segments = []
-    x = start
-    
-    def diff(x):
-        return f(x) - g(x)
-    
-    while x < end:
-        x_next = min(x + step, end)
-        # Проверяем смену знака
-        if diff(x) * diff(x_next) < 0:
-            segments.append((x, x_next))
-        x = x_next
-    
-    return segments
-
-
-def find_intersections(f: Callable, g: Callable, epsilon: float = 1e-6) -> list:
-    """
-    Поиск точек пересечения двух функций
-    
-    Параметры:
-    f, g - функции
+    step - шаг для поиска отрезков со сменой знака
     epsilon - требуемая точность
     
     Возвращает: список точек пересечения [x1, x2, ...]
     """
-    # Находим отрезки, где функции пересекаются
-    segments = find_intersection_segments(f, g)
-    
-    if not segments:
-        return []
-    
-    # Для каждого отрезка находим точную точку пересечения
     intersections = []
+    x = start
     
-    def diff(x):
-        return f(x) - g(x)
-    
-    for a, b in segments:
-        try:
-            root = bisection_method(diff, a, b, epsilon)
-            intersections.append(root)
-        except ValueError:
-            continue
+    while x < end:
+        x_next = min(x + step, end)
+        
+        if (f(x) - g(x)) * (f(x_next) - g(x_next)) < 0:
+            a, b = x, x_next
+            iterations = 0
+            
+            while (b - a) / 2 > epsilon and iterations < 1000:
+                c = (a + b) / 2
+                if abs(f(c) - g(c)) < epsilon:
+                    intersections.append(c)
+                    break
+                if (f(a) - g(a)) * (f(c) - g(c)) < 0:
+                    b = c
+                else:
+                    a = c
+                iterations += 1
+            else:
+                intersections.append((a + b) / 2)
+        
+        x = x_next
     
     return intersections
 
@@ -112,22 +73,18 @@ def calculate_area(f: Callable, g: Callable, x1: float, x2: float,
     def area_func(x):
         return abs(f(x) - g(x))
     
-    # Итерационно увеличиваем n до достижения точности
     n = 3
     prev_area = 0
     iterations = 0
     max_iterations = 100
     
     while iterations < max_iterations:
-        try:
-            area = simpson_3_8(area_func, x1, x2, n)
-            if abs(area - prev_area) < epsilon and iterations > 0:
-                return area, n
-            prev_area = area
-            n += 3  # Увеличиваем на 3, чтобы сохранить кратность
-            iterations += 1
-        except ValueError:
-            n += 3
+        area = simpson_3_8(area_func, x1, x2, n)
+        if abs(area - prev_area) < epsilon and iterations > 0:
+            return area, n
+        prev_area = area
+        n += 3
+        iterations += 1
     
     return prev_area, n
 
@@ -143,15 +100,13 @@ def graph_visualize(f: Callable, g: Callable, intersections: list,
     area - площадь фигуры
     x_start, x_end - границы отображения по X
     """
-    width = 100  # Ширина графика в символах
-    height = 30  # Высота графика в символах
+    width = 100
+    height = 30
     
-    # Определяем границы области интегрирования
     if len(intersections) >= 2:
         area_start = min(intersections[0], intersections[1])
         area_end = max(intersections[0], intersections[1])
         
-        # Автоматически определяем границы отображения
         if x_start is None or x_end is None:
             x_margin = abs(area_end - area_start) * 0.5
             x_start = area_start - x_margin
@@ -163,7 +118,6 @@ def graph_visualize(f: Callable, g: Callable, intersections: list,
         if x_end is None:
             x_end = 20
     
-    # Вычисляем значения функций для определения диапазона Y
     num_points = width
     x_values = []
     f_values = []
@@ -181,13 +135,11 @@ def graph_visualize(f: Callable, g: Callable, intersections: list,
             f_values.append(0)
             g_values.append(0)
     
-    # Определяем диапазон Y
     all_values = f_values + g_values
     y_min = min(all_values)
     y_max = max(all_values)
     y_range = y_max - y_min
     
-    # Добавляем отступы
     if y_range > EPS:
         y_min -= y_range * 0.1
         y_max += y_range * 0.1
@@ -197,10 +149,8 @@ def graph_visualize(f: Callable, g: Callable, intersections: list,
         y_max += 1
         y_range = 2
     
-    # Создаем сетку графика
     grid = [[' ' for _ in range(width)] for _ in range(height)]
     
-    # Рисуем оси
     # Ось X (y=0)
     if y_min <= 0 <= y_max:
         y_zero = int((y_max - 0) / y_range * (height - 1))
@@ -240,7 +190,6 @@ def graph_visualize(f: Callable, g: Callable, intersections: list,
     
     # Рисуем графики функций
     for i in range(num_points):
-        # График f(x)
         if f_values[i] is not None:
             y_pixel = int((y_max - f_values[i]) / y_range * (height - 1))
             if 0 <= y_pixel < height:
@@ -249,12 +198,11 @@ def graph_visualize(f: Callable, g: Callable, intersections: list,
                 elif grid[y_pixel][i] == '|':
                     grid[y_pixel][i] = 'f'
         
-        # График g(x)
         if g_values[i] is not None:
             y_pixel = int((y_max - g_values[i]) / y_range * (height - 1))
             if 0 <= y_pixel < height:
                 if grid[y_pixel][i] == 'f':
-                    grid[y_pixel][i] = 'X'  # Пересечение графиков
+                    grid[y_pixel][i] = 'X'
                 elif grid[y_pixel][i] in [' ', '░', '-']:
                     grid[y_pixel][i] = 'g'
                 elif grid[y_pixel][i] == '|':
@@ -272,11 +220,10 @@ def graph_visualize(f: Callable, g: Callable, intersections: list,
             except:
                 pass
     
-    # Выводим график
     print('\n' + '=' * width)
     print('ГРАФИК ФУНКЦИЙ'.center(width))
     print('=' * width)
-    print(f'f(x) = x²,  g(x) = x + 2')
+    print(f'f(x) = x²,  g(x) = -x² + 4')
     print(f'Площадь фигуры: {area:.7g}')
     print('=' * width)
     print('\nЛегенда:')
@@ -287,17 +234,11 @@ def graph_visualize(f: Callable, g: Callable, intersections: list,
     print('  X - пересечение графиков в данной точке')
     print()
     
-    # Верхняя граница Y
     print(f'Y = {y_max:7.3g}')
-    
-    # Выводим сетку
     for row in grid:
         print(''.join(row))
-    
-    # Нижняя граница Y
     print(f'Y = {y_min:7.3g}')
     
-    # Шкала X
     num_x_labels = 5
     x_label_line = ''
     for i in range(num_x_labels):
@@ -345,7 +286,8 @@ def print_results_table(intersections: list, area: float, n: int) -> None:
     print('=' * width + '\n')
 
 
-def main():
+
+if __name__ == '__main__':
     """Главная функция программы"""
     print('=' * 80)
     print('ЛАБОРАТОРНАЯ РАБОТА 11 (ЧАСТЬ 2)'.center(80))
@@ -354,45 +296,25 @@ def main():
     print('=' * 80)
     print('\nФункции:')
     print('  f(x) = x²')
-    print('  g(x) = x + 2')
+    print('  g(x) = -x² + 4')
     print('\nОбласть поиска пересечений: [-20, 20]')
     print('Метод поиска корней: половинное деление')
     print('Метод интегрирования: Симпсона 3/8')
     print('=' * 80 + '\n')
     
-    # Ввод точности
     epsilon_input = input(f'Введите точность ε (по умолчанию {EPS}): ').strip()
-    if epsilon_input:
-        try:
-            epsilon = float_input(epsilon_input)
-            if epsilon <= 0:
-                exit('Ошибка: точность должна быть положительной!')
-        except:
-            exit('Ошибка при вводе точности!')
-    else:
-        epsilon = EPS
+    epsilon = float_input(epsilon_input) if epsilon_input else EPS
+    
+    if epsilon <= 0:
+        exit('Ошибка: точность должна быть положительной!')
     
     print(f'\nИспользуется точность: {epsilon}')
     
-    # Поиск точек пересечения
     print('\n' + '-' * 80)
-    print('ШАГ 1: Поиск отрезков, содержащих точки пересечения')
+    print('Поиск точек пересечения методом половинного деления')
     print('-' * 80)
-    segments = find_intersection_segments(f, g)
     
-    if not segments:
-        print('Функции не пересекаются на отрезке [-20, 20]')
-        return
-    
-    print(f'Найдено отрезков: {len(segments)}')
-    for i, (a, b) in enumerate(segments, 1):
-        print(f'  Отрезок {i}: [{a:6.3g}, {b:6.3g}]')
-    
-    # Поиск точных точек пересечения
-    print('\n' + '-' * 80)
-    print('ШАГ 2: Поиск точных точек пересечения методом половинного деления')
-    print('-' * 80)
-    intersections = find_intersections(f, g, epsilon)
+    intersections = find_intersections(f, g, epsilon=epsilon)
     
     if len(intersections) < 2:
         print(f'Недостаточно точек пересечения для вычисления площади')
@@ -400,32 +322,18 @@ def main():
         if intersections:
             for i, x in enumerate(intersections, 1):
                 print(f'  Точка {i}: x = {x:.7g}, y = {f(x):.7g}')
-        return
+        exit('Ошибка: недостаточно точек пересечения!')
     
     print(f'Найдено точек пересечения: {len(intersections)}')
+    for i, x in enumerate(intersections, 1):
+        print(f'  Точка {i}: x = {x:.7g}, y = {f(x):.7g}')
     
-    # Вычисление площади
     print('\n' + '-' * 80)
-    print('ШАГ 3: Вычисление площади фигуры методом Симпсона 3/8')
+    print('Вычисление площади фигуры методом Симпсона 3/8')
     print('-' * 80)
     x1, x2 = intersections[0], intersections[1]
     area, n = calculate_area(f, g, x1, x2, epsilon)
     
-    # Вывод результатов
     print_results_table(intersections, area, n)
     
-    # Визуализация
-    visualize = input('Построить график? (y/n, по умолчанию y): ').strip().lower()
-    if visualize != 'n':
-        graph_visualize(f, g, intersections, area)
-    
-    print('\nПрограмма завершена успешно.')
-
-
-if __name__ == '__main__':
-    try:
-        main()
-    except KeyboardInterrupt:
-        print('\n\nПрограмма прервана пользователем.')
-    except Exception as e:
-        print(f'\nОшибка: {e}')
+    graph_visualize(f, g, intersections, area)
