@@ -2,37 +2,21 @@
 Иванов Андрей
 Иу7-16Б
 Лаба 11 (часть 2)
-Программа для поиска точек пересечения двух функций
-и вычисления площади замкнутой фигуры
 '''
 from typing import Callable
 from sys import exit
-
-# Импорт функций из первой части лабораторной работы
 from main import simpson_3_8, float_input, EPS
-
+from math import sin, cos
 
 def f(x: float) -> float:
-    """Первая функция: f(x) = x²"""
-    return x ** 2
+    return sin(x*2)
 
 
 def g(x: float) -> float:
-    """Вторая функция: g(x) = x + 2"""
-    return -x**2 + 2
+    return cos(x*2)
 
 
 def bisection_method(func: Callable, a: float, b: float, epsilon: float = 1e-6) -> float:
-    """
-    Метод половинного деления для поиска корня функции
-    
-    Параметры:
-    func - функция, корень которой ищем
-    a, b - границы отрезка
-    epsilon - требуемая точность
-    
-    Возвращает: приближенное значение корня
-    """
     if func(a) * func(b) > 0:
         raise ValueError("На концах отрезка функция должна иметь разные знаки")
     
