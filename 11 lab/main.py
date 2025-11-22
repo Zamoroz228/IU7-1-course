@@ -208,7 +208,7 @@ if __name__ == '__main__':
     if n1 <= 0 or n2 <= 0:
         exit('Ошибка: n1 и n2 должны быть положительны!')
         
-    epsilon_input = input(f'Введите точность ε (по умолчанию {EPS}): ').strip()
+    epsilon_input = input(f'Введите точность E (по умолчанию {EPS}): ').strip()
     epsilon = float_input(epsilon_input) if epsilon_input else EPS
     
     if epsilon <= 0:

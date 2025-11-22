@@ -126,23 +126,24 @@ def graph_visualize(f: Callable, g: Callable, prime_begin: float = -20, prime_en
             a, b = sorted((f_pos, g_pos))
             for j in range(a, b + 1):
                 if 0 <= j <= size:
-                    line[j] = '*'
+                    line[j] = '░'
         
         line[f_pos] = 'F'
         line[g_pos] = 'G'
             
-        print(f'{x:^6.5g}|{"".join(line)}')
+        print(f'{x:^8.5g}|{"".join(line)}')
 
 if __name__ == '__main__':
-    epsilon_input = input(f'Введите точность ε (по умолчанию {EPS}): ').strip()
+    epsilon_input = input(f'Введите точность E (по умолчанию {EPS}): ').strip()
     epsilon = float_input(epsilon_input) if epsilon_input else EPS
     
     if epsilon <= 0:
         exit('Ошибка: точность должна быть положительной!')
     
-    intersections = find_intersections(f, g, epsilon)
+    intersections = find_intersections(f, g, epsilon=epsilon)
     
     if len(intersections) < 2:
+        print(intersections)
         graph_visualize(f, g)
         exit('Ошибка: недостаточно точек пересечения!')
     
