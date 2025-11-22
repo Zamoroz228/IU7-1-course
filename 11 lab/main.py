@@ -117,7 +117,6 @@ def error_table(errors: list[tuple], real: float) -> None:
             rel_error = abs_error / abs(real) * 100
         else:
             rel_error = float('inf')
-        rel_error = abs_error / abs(real) * 100 if real != 0 else float('inf')
         table += f'|{method_name:^30}|{n:^10.6g}|{value:^15.7g}|{abs_error:^16.7g}|{rel_error:^18.7g}|\n{'-' * hatch}\n'
         
     print(table)
@@ -141,7 +140,7 @@ def find_n_accuracy(method: Callable, f:Callable,
 
     return None, None, max_iter
 
-def test_alghotitms(f: Callable, F: Callable, begin: float, end: float,
+def test_algotitms(f: Callable, F: Callable, begin: float, end: float,
                     n1: int, n2: int, epsilon: float) -> None:
     simpson_printable = []
     rectangle_printable = []
@@ -212,4 +211,7 @@ if __name__ == '__main__':
     epsilon_input = input(f'Введите точность ε (по умолчанию {EPS}): ').strip()
     epsilon = float_input(epsilon_input) if epsilon_input else EPS
     
-    test_alghotitms(f, F, begin, end, n1, n2, epsilon)
+    if epsilon <= 0:
+        exit('Ошибка: точность должна быть положительной!')
+    
+    test_algotitms(f, F, begin, end, n1, n2, epsilon)
