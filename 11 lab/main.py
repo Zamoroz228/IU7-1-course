@@ -122,23 +122,20 @@ def error_table(errors: list[tuple], real: float) -> None:
     print(table)
 
 
-def find_n_accuracy(method: Callable, f:Callable,
+def find_accuracy(method: Callable, f:Callable,
                     begin: float, end: float, begin_n: int, step_n: int,
-                    epsilon: float, max_iter: int = 1000) -> tuple:
+                    epsilon: float) -> tuple:
     n = begin_n
-    iter = 0
     
-    while iter < max_iter:
+    while True:
         i_n = method(f, begin, end, n)
         i_2n = method(f, begin, end, 2 * n)
         
         if abs(i_n - i_2n) < epsilon:
-            return i_2n, 2 * n, iter
+            return i_n, n
         
         n += step_n
-        iter += 1
 
-    return None, None, max_iter
 
 def test_algotitms(f: Callable, F: Callable, begin: float, end: float,
                     n1: int, n2: int, epsilon: float) -> None:
@@ -167,7 +164,7 @@ def test_algotitms(f: Callable, F: Callable, begin: float, end: float,
     print('Таблица погрешностей:')
     real_integral = integral(F, begin, end)
     error_table(errors_data, real_integral)
-    print(f'Точное значение интеграла (через первообразную): {real_integral:.10g}\n')
+    print(f'Точное значение интеграла: {real_integral:.10g}\n')
     
     best_method = min(errors_data, key=lambda x: abs(x[2] - real_integral))
     print(f'Наиболее точный метод: {best_method[0]} при N={best_method[1]}\n'
@@ -185,18 +182,13 @@ def test_algotitms(f: Callable, F: Callable, begin: float, end: float,
         begin_n = 3
         step_n = 3
     
-    result, n, iter = find_n_accuracy(less_method, f, begin, end, begin_n, step_n, epsilon)
+    result, n = find_accuracy(less_method, f, begin, end, begin_n, step_n, epsilon)
     
     print(f'Поиск N для {method_name} с точностью E = {epsilon}:')
     
-    if result is not None:
-        print(f'Результаты:'
-              f'  Найденное N: {n}\n'
-              f'  Приближенное значение интеграла: {result:.10g}\n'
-              f'  Абсолютная погрешность относительно точного: {abs(result - real_integral):.10g}')
-    else:
-        print(f'Не удалось найти N за {iter} итераций')
-    
+    print(f'Найденное N: {n}\n'
+            f'Приближенное значение интеграла: {result:.10g}\n'
+            f'Абсолютная погрешность относительно точного: {abs(result - real_integral):.10g}')
 
 if __name__ == '__main__':
     begin, end, *_ = map(float_input, input('Введите начало и конец интегрирования: ').split())

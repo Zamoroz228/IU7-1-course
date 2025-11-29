@@ -18,18 +18,16 @@ def g(x: float) -> float:
 
 def find_intersections(f: Callable, g: Callable, 
                        start: float = -20, end: float = 20, 
-                       step: float = 2, epsilon: float = 1e-6) -> list[float]:
+                       step: float = 2, epsilon: float = EPS) -> list[float]:
     intersections = []
     x = start
     
     while x < end:
-        x_next = min(x + step, end)
+        x_next = x + step
         
         if (f(x) - g(x)) * (f(x_next) - g(x_next)) < 0:
             a, b = x, x_next
-            iterations = 0
-            
-            while (b - a) / 2 > epsilon and iterations < 1000:
+            while True:
                 c = (a + b) / 2
                 if abs(f(c) - g(c)) < epsilon:
                     intersections.append(c)
@@ -38,9 +36,6 @@ def find_intersections(f: Callable, g: Callable,
                     b = c
                 else:
                     a = c
-                iterations += 1
-            else:
-                intersections.append((a + b) / 2)
         
         x = x_next
     
@@ -48,28 +43,21 @@ def find_intersections(f: Callable, g: Callable,
 
 
 def calculate_area(f: Callable, g: Callable, x1: float, x2: float, 
-                  epsilon: float = 1e-6) -> tuple:
-    
-    def area_func(x):
-        return abs(f(x) - g(x))
-    
+                  epsilon: float = EPS) -> tuple:
     n = 3
     prev_area = 0
-    iterations = 0
-    max_iterations = 100
     
-    while iterations < max_iterations:
-        area = simpson_3_8(area_func, x1, x2, n)
-        if abs(area - prev_area) < epsilon and iterations > 0:
+    while True:
+        area = simpson_3_8(lambda x: abs(f(x) - g(x)), x1, x2, n)
+        if abs(area - prev_area) < epsilon:
             return area, n
         prev_area = area
         n += 3
-        iterations += 1
-    
-    return prev_area, n
 
 
-def graph_visualize(f: Callable, g: Callable, prime_begin: float = -20, prime_end: float = 20, intersections: bool = False):
+def graph_visualize(f: Callable, g: Callable,
+                    prime_begin: float = -20, prime_end: float = 20,
+                    intersections: bool = False):
     number_of_serifs = 5
     size = 120
     begin, end = prime_begin - 1, prime_end + 1
@@ -119,14 +107,11 @@ def graph_visualize(f: Callable, g: Callable, prime_begin: float = -20, prime_en
         f_pos = int((current_f - func_min) / onePixelSize)
         g_pos = int((current_g - func_min) / onePixelSize)
         
-        f_pos = max(0, min(size, f_pos))  
-        g_pos = max(0, min(size, g_pos))  
-        
         if intersections and prime_begin <= x <= prime_end:
             a, b = sorted((f_pos, g_pos))
             for j in range(a, b + 1):
                 if 0 <= j <= size:
-                    line[j] = '░'
+                    line[j] = '*'
         
         line[f_pos] = 'F'
         line[g_pos] = 'G'
