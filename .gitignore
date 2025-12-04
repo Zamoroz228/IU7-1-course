@@ -45,6 +45,7 @@ env/
 venv/
 .venv/
 test.py
+*.csv
 
 # C# .NET
 bin/

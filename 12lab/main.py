@@ -4,7 +4,7 @@
 Сложение и деление и Наиболее часто встречающееся слово в каждом предложении
 '''
 from math import ceil
-from re import finditer
+from re import finditer, IGNORECASE
 
 
 def input_text() -> list[str]:
@@ -13,11 +13,12 @@ def input_text() -> list[str]:
     #     for i in range(len(text)):
     #         text[i] = text[i].strip()
     text = ['Один два три четыре 1 +2 /3',
-            'один. Шесть, семь восемь девять',
+            'один. Шесть, семь восемь девять один',
             'десять. Одинадцать, двенадцать',
+            'Пять',
             'Одинадцать двенадцать. один',
-            'три три три три. 1+3',
-            '52 + 52 /52.']
+            '1 три три три три. 1+3/0 1 +2',
+            '3 52 + 52 /52.']
     return text
 
 
@@ -48,11 +49,10 @@ def string_to_words(text: list[str]) -> list[list[str]]:
 
 
 def delete_multy_spaces(text: list[str]) -> list[str]:
-    words = string_to_words(text)
     new_text = []
-    for i in words:
-        new_text.append(' '.join(i))
-    return new_text
+    for i in text:
+        new_text.append(i.strip())
+    return replace_words(new_text, r' +',' ')
 
 
 def longest_string(text: list[str]) -> int:
@@ -81,6 +81,9 @@ def middle_aligment(text: list[str]) -> list[str]:
         if difference == 0:
             formatted_text.append(text[i])
         else:
+            if (len(words[i]) - 1) == 0:
+                formatted_text.append(text[i])
+                continue
             added_spaces_number = ceil(difference / (len(words[i]) - 1))
             current_string = ''
             for word in words[i][:-1]:
@@ -91,9 +94,12 @@ def middle_aligment(text: list[str]) -> list[str]:
     return formatted_text
             
 
-def replace_words(text: list[str], old: str, new: str = '') -> list[str]:
+def replace_words(text: list[str], old: str, new: str = '', register: bool = False) -> list[str]:
     for index, string in enumerate(text):
-        all_matches = finditer(old, string)
+        if register:
+            all_matches = finditer(old, string, IGNORECASE)
+        else:
+            all_matches = finditer(old, string)
         if all_matches:
             new_string = ''
             prev_end = 0
@@ -149,58 +155,100 @@ def calculate(text: list[str]) -> list[str]:
                 operators.append(operator)
             if operators:
                 operator_index = 0
-                while operator_index < len(operators):
+                zero_division = False
+                while operator_index < len(operators) and not zero_division:
                     operator = operators[operator_index]
                     if operator == '/':
                         if numbers[operator_index + 1] == 0:
-                            raise ZeroDivisionError
+                            zero_division = True
+                            break
                         numbers[operator_index] = numbers[operator_index] / numbers.pop(operator_index + 1)
                         operators.pop(operator_index)
                     else:
                         operator_index += 1
-                        
-                new_string += str(sum(numbers))
+                if zero_division:
+                    new_string += string[begin_index:end_index]
+                else:
+                    new_string += str(sum(numbers))
             else:
                 new_string += string[begin_index:end_index]
         text[index] = new_string
     return text
 
 
+# def most_popular_word(text: list[str]) -> list[str]:
+#     new_text = text
+#     senteces = [[]]
+#     senteces_pos = []
+#     start_index = 0
+#     punctuation_marks = '.,?!:;'
+#     words = string_to_words(text)
+#     for line_index, i in enumerate(words):
+#         for word in i:
+#             if word[-1] == '.':
+#                 senteces[-1].append(word)
+#                 senteces.append([])
+#                 senteces_pos.append((start_index, line_index, text[line_index].find(word) + len(word)))
+#                 start_index = line_index
+#             else:
+#                 senteces[-1].append(word)    
+#     senteces = senteces[:-1]
+#     for index, sentece in enumerate(senteces):
+#         words = dict()
+#         for word in sentece:
+#             clear_word = word
+#             for mark in punctuation_marks:
+#                 clear_word = clear_word.replace(mark, '')
+#             clear_word = clear_word.lower()
+#             words[clear_word] = words.get(clear_word, 0) + 1
+#         popular = max(words, key=words.get)
+#         print('В предложении:', ' '.join(sentece), '\nУдалено слово:', popular)
+#         prev_pos = 0
+#         start, end, pos = senteces_pos[index]
+#         new_text[start] = replace_words([text[start][prev_pos:]], popular, '', True)[0]
+#         for i in range(start + 1, end):
+#             new_text[i] = replace_words([text[i]], popular, '', True)[0]
+#         new_text[end] = replace_words([text[end][:pos]], popular, '', True)[0] + text[end][pos:]
+#         prev_pos = pos
+#     return new_text
+
+
 def most_popular_word(text: list[str]) -> list[str]:
-    new_text = text
-    senteces = [[]]
-    senteces_pos = []
-    start_index = 0
     punctuation_marks = '.,?!:;'
-    words = string_to_words(text)
-    for line_index, i in enumerate(words):
-        for word in i:
+    def clean_word(word: str) -> str:
+        for i in punctuation_marks:
+            word = word.replace(i, '')
+        return word.lower()
+    new_text = [''] * len(text)
+    sentece = ''
+    words = dict()
+    start = 0
+    prev_pos = 0
+    for i in range(len(text)):
+        for word in text[i].split():
             if word[-1] == '.':
-                senteces[-1].append(word)
-                senteces.append([])
-                senteces_pos.append((start_index, line_index, text[line_index].find(word) + len(word)))
-                start_index = line_index
+                cln_word = clean_word(word)
+                sentece += word + ' '
+                words[cln_word] = words.get(cln_word, 0) + 1
+                pos = text[i].find(word) + len(word)
+                popular = max(words, key=words.get)
+                print('В предложении:', sentece, '\nУдалено слово:', popular)
+                new_text[start] += replace_words([text[start][prev_pos:]], popular, '', True)[0]
+                for j in range(start + 1, i):
+                    new_text[j] = replace_words([text[j]], popular, '', True)[0]
+                new_text[i] = replace_words([text[i][:pos]], popular, '', True)[0]
+                start = i
+                prev_pos = pos
+                words = dict()
+                sentece = ''
             else:
-                senteces[-1].append(word)    
-    senteces = senteces[:-1]
-    for index, sentece in enumerate(senteces):
-        words = dict()
-        for word in sentece:
-            clear_word = word
-            for mark in punctuation_marks:
-                clear_word = clear_word.replace(mark, '')
-            words[clear_word] = words.get(clear_word, 0) + 1
-        popular = max(words, key=words.get)
-        print('В предложении:', ' '.join(sentece), '\nУдалено слово:', popular)
-        start, end, pos = senteces_pos[index]
-        for i in range(start, end):
-            new_text[i] = replace_words([text[i]], popular, '')[0]
-        new_text[end] = replace_words([text[end][:pos]], popular, '')[0] + text[end][pos:]
+                sentece += word + ' '
+                cln_word = clean_word(word)
+                words[cln_word] = words.get(cln_word, 0) + 1
     return new_text
-            
-                    
+
+
 def main():
-    path = '12lab/1.txt'
     text = input_text()
     t = 0
     while True:
@@ -247,4 +295,6 @@ if __name__ == '__main__':
     try:
         main()
     except KeyboardInterrupt:
-        print('Програма завершена!')
+        print('\nПрограма завершена!')
+    except ZeroDivisionError:
+        print('\nНельзя делить на 0!')
