@@ -51,7 +51,7 @@ def decode_line(line: str, delimetr: str = ';') -> list[str]:
         else:
             current_field += char
             i += 1
-    fields.append(current_field)
+    fields.append(current_field.strip())
     
     return fields
             
@@ -79,7 +79,7 @@ def decode_types(line: str):
         t = t.strip()
         real_type = all_types_dict.get(t)
         if real_type is None:
-            raise ValueError('Неправильный тип файла')
+            raise ValueError('Неправильный тип данных')
         else:
             types.append(real_type)
     return types
@@ -89,6 +89,8 @@ def read_title(path: str) -> tuple[list[str], list[type]]:
     with open(path, 'r', encoding='utf-8') as file:
         title = decode_line(file.readline())
         types = decode_types(file.readline())
+        if len(title) != len(types):
+            raise ValueError('Не совпадает количество столбцов и типов данных')
         return title, types
 
 
@@ -96,7 +98,7 @@ def create_standart_table(path: str) -> tuple[list[str], list[type]]:
     title = ['Имя', 'Фамилия', 'Рост', 'Возраст', 'Вес']
     types = [str, str, float, int, float]
     with open(path, 'w', encoding='utf-8') as file:
-        file.write(encode_line(title) + '\n' + encode_line(types))
+        file.write(encode_line(title) + '\n' + encode_line(types) + '\n')
     return title, types
     
     
@@ -105,6 +107,7 @@ def create_table(path: str) -> tuple[list[str], list[type]]:
     types = []
     for name in title:
         while True:
+            print('-' * 50)
             print('1) str')
             print('2) bool')
             print('3) int')
@@ -124,7 +127,7 @@ def create_table(path: str) -> tuple[list[str], list[type]]:
                     continue
             break
     with open(path, 'w', encoding='utf-8') as file:
-        file.write(encode_line(title) + '\n' + encode_line(types))
+        file.write(encode_line(title) + '\n' + encode_line(types) + '\n')
     return title, types
 
 
@@ -161,23 +164,129 @@ def fill_table(path: str, title: list[str] = None, types: list[type] = None): # 
                 file.write(encode_line(fields) + '\n')
 
 
-def conditionals(title: list[str], types: list[type]):
-
+def conditionals(title: list[str], types: list[type]) -> list[str]:
+    cond = [''] * len(title)
     while True:
+        print('Все столбцы')
+        [print(f'{i}) {title[i]}') for i in range(len(title))]
+        try:
+            _a = input('Введите номер нужного: ')
+            if not _a:
+                break
+            a = int(_a)
+        except ValueError:
+            print('Введенно не числовая строка')
+            continue
+        if not 0 <= a < len(title) or cond[a]:
+            print('Выбран неправильный номер или для этой строчки уже есть условие')
+            continue
+        
+        t = types[a]
+        match str(t):
+            case "<class 'int'>" | "<class 'float'>":
+                print('Введите выражение по типу 10 / 3 <= x < 1.000.000')
+                express = input('Ваше выражение: ')
+                try: 
+                    x = 0
+                    eval(express)
+                except:
+                    print('Неверно введено выражение')
+                    continue
+            case "<class 'bool'>":
+                express = 'x ==' + input('Введите либо True либо False: ')
+                try:
+                    x = True
+                    eval(express)
+                except:
+                    print('Неверно введено выражение')
+                    continue
+            case "<class 'str'>": 
+                print("Введите выражение по типу len(x) > 10 или 'yes' in x")
+                express = input('Ваше выражение: ')
+                try:
+                    x = '123'
+                    eval(express)
+                except:
+                    print('Неверно введено выражение')
+                    continue
+            case _:
+                raise ValueError('Неправильный тип данных')
+            
+        cond[a] = express
+        
+    return cond        
+    
+
+def test_fields(fields: list, cond: list[str]) -> bool:
+    for i in range(len(fields)):
+        if not cond[i]:
+            continue
+        x = fields[i]
+        if not eval(cond[i]):
+            return False
+    return True 
     
                     
 def read_table(path: str, with_conditional: bool = False):
     with open(path, 'r', encoding='utf-8') as file:
         title, types = decode_line(file.readline()), decode_types(file.readline())
-        print(' '.join(title), end='')
+        if len(title) != len(types):
+            raise ValueError('Не совпадает количество столбцов и типов данных')
+        if with_conditional:
+            cond = conditionals(title, types)
+        print(' '.join(title))
         for line in file:
             fields = decode_line(line)
             text_fields = fields.copy()
             check_line(fields, types)
             if with_conditional:
-
+                if test_fields(fields, cond):
+                    print(' '.join(text_fields))
             else:
-                print(' '.join(te), end='')
+                print(' '.join(text_fields))
+
+
+def sorting_table(path: str):
+    with open(path, 'r', encoding='utf-8') as file:
+        title, types = decode_line(file.readline()), decode_types(file.readline())
+        if len(title) != len(types):
+            raise ValueError('Не совпадает количество столбцов и типов данных')
+        [print(f'{i}) {title[i]}') for i in range(len(title))]
+        while True:
+            try:
+                columns = list(map(int, input('Нужные столбцы в порядке приоритета: ').split()))        
+            except ValueError:
+                print('Все значение должны быть int')
+                continue
+            if min(columns) < 0 or max(columns) >= len(title):
+                print('Значения не соотвествуют столбцам')
+                continue
+            break
+        keys_value = []
+        while True:
+            pos = file.tell()
+            line = file.readline()
+            if not line:
+                break
+            fields = decode_line(line)
+            check_line(fields, types)
+            keys_value.append(list())
+            for column in columns:
+                keys_value[-1].append(fields[column])
+            
+            keys_value[-1].append(pos)
+            
+        keys_value.sort()
+        directory, file_name = os.path.split(path)
+        new_path = os.path.join(directory, '_' + file_name)
+        print(new_path)
+        with open(new_path, 'w', encoding='utf-8') as file2:
+            file2.write(encode_line(title) + '\n' + encode_line(types) + '\n')
+            for *_, index in keys_value:
+                file.seek(index)
+                file2.write(file.readline())
+    os.remove(path)
+    os.rename(new_path, path)
 
 
 def main():
