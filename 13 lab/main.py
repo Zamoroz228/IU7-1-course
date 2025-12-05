@@ -1,4 +1,3 @@
-from dataclasses import fields
 import os
 
 def select_path():
@@ -12,6 +11,7 @@ def select_path():
         elif os.path.splitext(path)[-1] == '.csv':
             return path
         print('Неправильно введен путь, попробуй еще раз!')
+    os.chdir(path)
     print(f'Отлично, выбран путь: {path}')
     while True:
         try:
@@ -69,19 +69,19 @@ def encode_line(fields: list, delimetr: str = ';'):
 
 def decode_types(line: str):
     types = []
+    all_types_dict = {
+        "<class 'str'>": str,
+        "<class 'bool'>": bool,
+        "<class 'int'>": int,
+        "<class 'float'>": float
+    }
     for t in decode_line(line):
         t = t.strip()
-        match t:
-            case "<class 'str'>":
-                types.append(str)
-            case "<class 'bool'>":
-                types.append(bool)
-            case "<class 'int'>":
-                types.append(int)
-            case "<class 'float'>":
-                types.append(float)
-            case _:
-                raise ValueError(f'Ошибка тип данных {t}')
+        real_type = all_types_dict.get(t)
+        if real_type is None:
+            raise ValueError('Неправильный тип файла')
+        else:
+            types.append(real_type)
     return types
 
 
@@ -92,6 +92,14 @@ def read_title(path: str) -> tuple[list[str], list[type]]:
         return title, types
 
 
+def create_standart_table(path: str) -> tuple[list[str], list[type]]:
+    title = ['Имя', 'Фамилия', 'Рост', 'Возраст', 'Вес']
+    types = [str, str, float, int, float]
+    with open(path, 'w', encoding='utf-8') as file:
+        file.write(encode_line(title) + '\n' + encode_line(types))
+    return title, types
+    
+    
 def create_table(path: str) -> tuple[list[str], list[type]]:
     title = input('Введите названия столбцов через пробел: ').split()
     types = []
@@ -151,15 +159,25 @@ def fill_table(path: str, title: list[str] = None, types: list[type] = None): # 
             fields = a.split()
             if check_line(fields, types):
                 file.write(encode_line(fields) + '\n')
+
+
+def conditionals(title: list[str], types: list[type]):
+
+    while True:
+    
                     
-def read_table(path: str):
+def read_table(path: str, with_conditional: bool = False):
     with open(path, 'r', encoding='utf-8') as file:
         title, types = decode_line(file.readline()), decode_types(file.readline())
         print(' '.join(title), end='')
         for line in file:
             fields = decode_line(line)
-            print(' '.join(fields), end='')
+            text_fields = fields.copy()
             check_line(fields, types)
+            if with_conditional:
+
+            else:
+                print(' '.join(te), end='')
 
 
 def main():
