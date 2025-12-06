@@ -33,27 +33,33 @@ def decode_line(line: str, delimetr: str = ';') -> list[str]:
     fields = []
     current_field = ''
     i = 0
-    while i < len(line):
+    n = len(line)
+    while i < n:
         char = line[i]
         if char == '"':
             i += 1
-            if line[i] == '"':
-                current_field += '"'
-                i += 1
-            else:
-                while line[i] != '"':
+            while i < n:
+                if line[i] == '"':
+                    if i + 1 < n and line[i + 1] == '"':
+                        current_field += '"'
+                        i += 2
+                    else:
+                        i += 1
+                        break
+                else:
                     current_field += line[i]
-                    i += 1
-                i += 1
-        elif char in delimetr:
+                    i += 1  
+        elif char == delimetr:
             fields.append(current_field)
             current_field = ''
+            i += 1
+        elif char == '\n':
             i += 1
         else:
             current_field += char
             i += 1
-    fields.append(current_field.strip())
     
+    fields.append(current_field)
     return fields
             
              
@@ -351,10 +357,9 @@ def main():
                 print('Неправильная команды')
                 continue
             
-    
             
 if __name__ == '__main__':
-    try:
+    try: 
         main()
     except KeyboardInterrupt:
         print('Программа завершена')
