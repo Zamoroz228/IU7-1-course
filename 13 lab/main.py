@@ -1,5 +1,6 @@
 import os
 
+
 def select_path():
     while True:
         path = input('Введите нужную стартовую папку (выбор текущей пустая строка): ')
@@ -24,7 +25,7 @@ def select_path():
             print(path)
         except (FileNotFoundError, NotADirectoryError, OSError) as error:
             if os.path.splitext(a)[-1] == '.csv':
-                return path + '\\' + a
+                return os.path.join(path, a)
             print(f'Ошибка: {error}')
 
 
@@ -61,8 +62,8 @@ def encode_line(fields: list, delimetr: str = ';'):
     for field in fields:
         field = str(field)
         if delimetr in field or '"' in field:
-            field.replace('"', '""')
-            field.replace(delimetr, f'"{delimetr}"')
+            field = field.replace('"', '""')
+            field = '"' + field + '"'
         line += field + ';'
     return line[:-1]
 
@@ -131,15 +132,24 @@ def create_table(path: str) -> tuple[list[str], list[type]]:
     return title, types
 
 
-def check_line(fields: list[str], types: list[type]) -> bool:
+def check_line(fields: list, types: list[type]) -> bool:
     if len(fields) != len(types):
         print('Количество введенных данных не соотвествует количеству столбцов')
         return False
     
     for i in range(len(fields)):
         try:
-            fields[i] = types[i](fields[i])
-        except:
+            if types[i] == bool:
+                if fields[i].lower() == 'true':
+                    fields[i] = True
+                elif fields[i].lower() == 'false':
+                    fields[i] = False
+                else:
+                    print(f'Не соотвествующий тип данных {fields[i]}, ожидалось {types[i]}')
+                    return False
+            else:
+                fields[i] = types[i](fields[i])
+        except (ValueError, TypeError):
             print(f'Не соотвествующий тип данных {fields[i]}, ожидалось {types[i]}')
             return False
     
@@ -189,7 +199,7 @@ def conditionals(title: list[str], types: list[type]) -> list[str]:
                 try: 
                     x = 0
                     eval(express)
-                except:
+                except Exception:
                     print('Неверно введено выражение')
                     continue
             case "<class 'bool'>":
@@ -197,7 +207,7 @@ def conditionals(title: list[str], types: list[type]) -> list[str]:
                 try:
                     x = True
                     eval(express)
-                except:
+                except Exception:
                     print('Неверно введено выражение')
                     continue
             case "<class 'str'>": 
@@ -206,7 +216,7 @@ def conditionals(title: list[str], types: list[type]) -> list[str]:
                 try:
                     x = '123'
                     eval(express)
-                except:
+                except Exception:
                     print('Неверно введено выражение')
                     continue
             case _:
@@ -279,7 +289,6 @@ def sorting_table(path: str):
         keys_value.sort()
         directory, file_name = os.path.split(path)
         new_path = os.path.join(directory, '_' + file_name)
-        print(new_path)
         with open(new_path, 'w', encoding='utf-8') as file2:
             file2.write(encode_line(title) + '\n' + encode_line(types) + '\n')
             for *_, index in keys_value:
@@ -290,7 +299,58 @@ def sorting_table(path: str):
 
 
 def main():
-    pass
+    path = select_path()
+    while True:
+        print('Команды:')
+        print('1) Инициализировать бд')
+        print('2) Дополнить данными бд')
+        print('3) Вывести бд')
+        print('4) Поиск с фильтрами по бд')
+        print('5) Отсортировать бд')
+        print('6) Сменить путь')
+        print('0) Выход из программы')
+        print('Команды:')
+        a = input('Введите номер нужнйо комманды: ')
+        match a:
+            case '1':
+                answer = input('Вы хотите cоздать пользователскую структуру (yes/no): ')
+                match answer:
+                    case 'yes':
+                        title, types = create_table(path)
+                    case 'no':
+                        title, types = create_standart_table(path)
+                    case _:
+                        print('Неправильная команды')
+                        continue
+                fill_table(path, title, types)
+            case '2':
+                try:
+                    fill_table(path)
+                except (ValueError, FileNotFoundError) as err:
+                    print(f'База данных пустая или такого файла не существует {err}')
+            case '3':
+                try:
+                    read_table(path)
+                except (ValueError, FileNotFoundError) as err:
+                    print(f'База данных пустая или такого файла не существует {err}')
+            case '4':
+                try:
+                    read_table(path, True)
+                except (ValueError, FileNotFoundError) as err:
+                    print(f'База данных пустая или такого файла не существует {err}')
+            case '5':
+                try:
+                    sorting_table(path)
+                except (ValueError, FileNotFoundError) as err:
+                    print(f'База данных пустая или такого файла не существует {err}')
+            case '6':
+                path = select_path()
+            case '0':
+                raise KeyboardInterrupt
+            case _:
+                print('Неправильная команды')
+                continue
+            
     
             
 if __name__ == '__main__':
